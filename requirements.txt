@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+langgraph>=0.0.48
+langchain-openai
+pydantic
+python-dotenv
+pandas
+thefuzz
