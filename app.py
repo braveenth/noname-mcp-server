@@ -22,23 +22,37 @@ async def run_agent(request: MCPRequest):
     # Extract the response from the agent's final state
     agent_response = result['messages'][-1].content
     
-    # Since the agent's response is a JSON string, we need to parse it
-    # to fit into the SearchResponse schema.
-    # This is a simplified approach; a more robust solution would handle parsing errors.
+    # The agent's response is now expected to be a JSON string that maps directly
+    # to the SearchResponse schema.
     try:
+        # Parse the JSON string from the agent's response
         search_response_data = json.loads(agent_response)
-        if isinstance(search_response_data, dict):
-            # If the agent returns a message, use it as the summary
-            if 'message' in search_response_data and 'summary' not in search_response_data:
-                search_response_data['summary'] = search_response_data.pop('message')
+
+        # If the agent returns a list of products, it's from a direct tool call.
+        # We'll construct the SearchResponse with a default summary.
+        if isinstance(search_response_data, list):
+            search_response = SearchResponse(
+                products=search_response_data,
+                summary="Found products."
+            )
+        # If the agent returns a dictionary, it should match the SearchResponse schema.
+        elif isinstance(search_response_data, dict):
+            # If 'products' is not in the response, set it to None
+            if 'products' not in search_response_data:
+                search_response_data['products'] = None
             
-            # If there's still no summary, the SearchResponse constructor will fail
-            # and we'll fall into the except block.
+            # If 'summary' is not in the response, create a default one
+            if 'summary' not in search_response_data:
+                search_response_data['summary'] = "No summary provided."
             
-        search_response = SearchResponse(**search_response_data)
-    except (json.JSONDecodeError, TypeError, ValidationError):
+            search_response = SearchResponse(**search_response_data)
+        else:
+            # If the response is neither a list nor a dict, treat it as a summary.
+            search_response = SearchResponse(summary=str(agent_response))
+
+    except (json.JSONDecodeError, TypeError, ValidationError) as e:
         # If parsing or validation fails, treat the entire response as a summary
-        search_response = SearchResponse(summary=agent_response)
+        search_response = SearchResponse(summary=f"Error parsing agent response: {agent_response}")
 
     return MCPResponse(data=search_response)
 

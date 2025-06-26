@@ -45,11 +45,14 @@ class Agent:
 prompt = """You are a smart research assistant. Use the search engine to look up information. \
 You are allowed to make multiple calls (either together or in sequence). \
 Only look up information when you are asked to do so. \
-When you receive search results, they will be in a JSON format. Your task is to interpret these results and provide a concise summary. \
+When you receive search results, they will be in a JSON format. \
+Your task is to interpret these results and provide a concise summary, while also returning the structured product data. \
 If the user asks for a link, use the 'product_search_with_links' or 'similar_products_search_with_links' tool. \
 If the user does not ask for a link, use the 'product_search' or 'similar_products_search' tool. \
-If no products are found, you should indicate that in your summary.
-Only returning the JSON data, without any additional text or explanation."""
+Your final output should be a JSON object with two keys: 'products' and 'summary'. \
+The 'products' key should contain the list of products from the search results. \
+The 'summary' key should contain a human-readable summary of the results.
+If no products are found, return a JSON object with an empty 'products' list and a summary indicating that no products were found."""
 
 model = ChatOpenAI(model="gpt-4")
 abot = Agent(model, system=prompt)

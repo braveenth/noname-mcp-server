@@ -17,6 +17,7 @@ class Product(BaseModel):
 
 class ProductResponse(BaseModel):
     date: int = Field(..., description="Date of the record")
+    store_id: int = Field(..., description="ID of the store")
     code: str = Field(..., description="Product code")
     article_number: str = Field(..., description="Article number")
     name: str = Field(..., description="Name of the product")
@@ -43,7 +44,7 @@ class SearchRequest(BaseModel):
     query: str = Field(..., description="The user's search query")
 
 class SearchResponse(BaseModel):
-    products: Optional[List[Product]] = None
+    products: Optional[List[ProductResponse]] = None
     recipe: Optional[Recipe] = None
     similar_products: Optional[List[Product]] = None
     nutritional_info: Optional[NutritionalInfo] = None
