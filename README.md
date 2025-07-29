@@ -17,37 +17,6 @@ This project implements a Model-Context-Protocol (MCP) server that provides an i
 
 The server uses a LangGraph-based agent to process incoming requests. The agent decides which tool to use based on the user's query, executes the tool, and then formulates a final response.
 
-```mermaid
-graph TD
-    subgraph User
-        A[Client]
-    end
-
-    subgraph MCP Server (FastAPI)
-        B[API Endpoint: /mcp]
-        C[LangGraph Agent]
-        D[Tool Executor]
-        E[Tools]
-    end
-
-    subgraph Data & Services
-        F[noname_products.csv]
-        G[OpenAI API]
-    end
-
-    A -- HTTP Request --> B
-    B -- Passes Query --> C
-    C -- Decides which tool to use --> D
-    D -- Executes --> E
-    E -- get_products, get_similar_products --> F
-    E -- get_recipe --> G
-    F -- Returns Product Data --> E
-    G -- Returns Recipe --> E
-    E -- Returns Result --> C
-    C -- Formulates Final Response --> B
-    B -- HTTP Response --> A
-```
-
 ## Data Sources
 
 *   **`noname_products.csv`**: This file contains the core product data, and it was obtained from Kaggle. It includes columns such as `Name`, `aisle`, `brand`, `price`, and `Code` (the product identifier for generating links). The data is based on products from a Canadian supermarket.
